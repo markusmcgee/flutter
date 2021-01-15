@@ -991,7 +991,7 @@ class _DayPickerState extends State<_DayPicker> {
           dayColor = selectedDayColor;
           decoration = BoxDecoration(
             color: selectedDayBackground,
-            shape: BoxShape.circle,
+            shape: BoxShape.rectangle,
           );
         } else if (isDisabled) {
           dayColor = disabledDayColor;
@@ -1001,7 +1001,7 @@ class _DayPickerState extends State<_DayPicker> {
           dayColor = todayColor;
           decoration = BoxDecoration(
             border: Border.all(color: todayColor, width: 1),
-            shape: BoxShape.circle,
+            shape: BoxShape.rectangle,
           );
         }
 
