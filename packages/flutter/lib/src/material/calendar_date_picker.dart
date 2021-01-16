@@ -56,7 +56,7 @@ const double _monthNavButtonsWidth = 108.0;
 ///  * [showTimePicker], which shows a dialog that contains a material design
 ///    time picker.
 ///
-class CalendarDatePicker extends StatefulWidget {
+class CalendarDatePicker extends StatefulWidget  {
   /// Creates a calendar date picker.
   ///
   /// It will display a grid of days for the [initialDate]'s month. The day
@@ -94,6 +94,7 @@ class CalendarDatePicker extends StatefulWidget {
     this.onDisplayedMonthChanged,
     this.initialCalendarMode = DatePickerMode.day,
     this.selectableDayPredicate,
+    required this.calendarEvents,
   }) : assert(initialDate != null),
        assert(firstDate != null),
        assert(lastDate != null),
@@ -146,6 +147,8 @@ class CalendarDatePicker extends StatefulWidget {
   /// Function to provide full control over which dates in the calendar can be selected.
   final SelectableDayPredicate? selectableDayPredicate;
 
+  late List<DateTime> calendarEvents;
+
   @override
   _CalendarDatePickerState createState() => _CalendarDatePickerState();
 }
@@ -159,6 +162,7 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
   final GlobalKey _yearPickerKey = GlobalKey();
   late MaterialLocalizations _localizations;
   late TextDirection _textDirection;
+  late List<DateTime> _calendarEvents;
 
   @override
   void initState() {
@@ -274,6 +278,7 @@ class _CalendarDatePickerState extends State<CalendarDatePicker> {
           onChanged: _handleDayChanged,
           onDisplayedMonthChanged: _handleMonthChanged,
           selectableDayPredicate: widget.selectableDayPredicate,
+          calendarEvents: widget.calendarEvents,
         );
       case DatePickerMode.year:
         return Padding(
@@ -442,6 +447,7 @@ class _MonthPicker extends StatefulWidget {
     required this.onChanged,
     required this.onDisplayedMonthChanged,
     this.selectableDayPredicate,
+    required this.calendarEvents,
   }) : assert(selectedDate != null),
        assert(currentDate != null),
        assert(onChanged != null),
@@ -483,6 +489,8 @@ class _MonthPicker extends StatefulWidget {
 
   /// Optional user supplied predicate function to customize selectable days.
   final SelectableDayPredicate? selectableDayPredicate;
+
+  late List<DateTime> calendarEvents;
 
   @override
   _MonthPickerState createState() => _MonthPickerState();
@@ -743,6 +751,7 @@ class _MonthPickerState extends State<_MonthPicker> {
       lastDate: widget.lastDate,
       displayedMonth: month,
       selectableDayPredicate: widget.selectableDayPredicate,
+      calendarEvents: widget.calendarEvents,
     );
   }
 
@@ -840,6 +849,7 @@ class _DayPicker extends StatefulWidget {
     required this.selectedDate,
     required this.onChanged,
     this.selectableDayPredicate,
+    required this.calendarEvents,
   }) : assert(currentDate != null),
        assert(displayedMonth != null),
        assert(firstDate != null),
@@ -877,6 +887,8 @@ class _DayPicker extends StatefulWidget {
 
   /// Optional user supplied predicate function to customize selectable days.
   final SelectableDayPredicate? selectableDayPredicate;
+
+  late List<DateTime> calendarEvents;
 
   @override
   _DayPickerState createState() => _DayPickerState();
@@ -959,6 +971,7 @@ class _DayPickerState extends State<_DayPicker> {
     final Color disabledDayColor = colorScheme.onSurface.withOpacity(0.38);
     final Color selectedDayColor = colorScheme.onPrimary;
     final Color selectedDayBackground = colorScheme.primary;
+    final Color eventDayBackground = Color(0xFF880000);
     final Color todayColor = colorScheme.primary;
 
     final int year = widget.displayedMonth.year;
@@ -983,6 +996,13 @@ class _DayPickerState extends State<_DayPicker> {
         final bool isSelectedDay = DateUtils.isSameDay(widget.selectedDate, dayToBuild);
         final bool isToday = DateUtils.isSameDay(widget.currentDate, dayToBuild);
 
+        bool isEventDay = false;
+        for(DateTime dayItem in widget.calendarEvents){
+          isEventDay = DateUtils.isSameDay(dayToBuild, dayItem);
+          if(isEventDay)
+            break;
+        }
+
         BoxDecoration? decoration;
         Color dayColor = enabledDayColor;
         if (isSelectedDay) {
@@ -991,6 +1011,12 @@ class _DayPickerState extends State<_DayPicker> {
           dayColor = selectedDayColor;
           decoration = BoxDecoration(
             color: selectedDayBackground,
+            shape: BoxShape.rectangle,
+          );
+        } else if (isEventDay) {
+          dayColor = selectedDayColor;
+          decoration = BoxDecoration(
+            color: eventDayBackground,
             shape: BoxShape.rectangle,
           );
         } else if (isDisabled) {
